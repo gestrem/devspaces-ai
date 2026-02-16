@@ -1,0 +1,21 @@
+name: Local Assistant
+version: 1.0.0
+schema: v1
+models:
+  - name: ai-code-assistant-granite
+    model: granite-3-3-8b-instruct
+    apiBase: https://granite-3-3-8b-instruct-maas-apicast-production.apps.prod.rhoai.rh-aiservices-bu.com:443/v1/
+    provider: openai
+    apiKey: a288a5db010eca3b6a4e28de00a80ec0
+    roles:
+      - chat
+      - edit
+      - autocomplete
+context:
+  - provider: code
+  - provider: docs
+  - provider: diff
+  - provider: terminal
+  - provider: problems
+  - provider: folder
+  - provider: codebase

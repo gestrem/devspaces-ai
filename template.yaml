@@ -1,0 +1,88 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: devspaces-for-ai
+  title: Devspaces for AI 11
+  description: Create a Devspaces with generative code 
+  tags:
+    - ai
+    - recommended
+    - java
+    - quarkus
+    - maven
+spec:
+  owner: rhdh
+  type: service
+  parameters:
+    - title: Define your MaaS to use
+      required:
+        - maasURL
+        - model
+        - provider
+        - apikey
+      properties:
+        maasURL:
+          title: MaaS URL
+          type: string
+          default: https://maas.apps.prod.rhoai.rh-aiservices-bu.com
+        model:
+          title: Model
+          type: string 
+        provider:
+          title: Provider
+          type: string
+          default: openai
+        apikey:
+          title: API Key
+          type: string
+    - title: Application repository Information
+      required:
+        - repo
+      properties:
+        repo:
+          title: Repository Location
+          type: object
+          properties:
+            host:
+              title: Repo Host
+              type: string
+              description: Your SCM host
+              default: gitlab-gitlab.apps.cluster-tmw24.tmw24.sandbox3294.opentlc.com
+              enum:
+                - gitlab-gitlab.apps.cluster-tmw24.tmw24.sandbox3294.opentlc.com
+            owner:
+              title: Repo Owner
+              type: string
+              description: Your SCM host organization/group
+              default: development
+          
+  steps:
+    - id: template
+      name: Fetch Skeleton + Template
+      action: fetch:template
+      input:
+        url: ./skeleton
+        values:
+          apikey: ${{ parameters.apikey }}
+          provider: ${{ parameters.provider }}
+          maasURL: ${{ parameters.maasURL}}
+          owner: ${{ user.entity.metadata.name }}
+          model: ${{ parameters.model }}
+          cluster: apps.cluster-tmw24.tmw24.sandbox3294.opentlc.com
+          host: ${{ parameters.repo.host }}
+          port: 8080
+
+    - id: publish
+      name: Publish
+      action: publish:gitlab
+      input:
+        repoUrl: "${{ parameters.repo.host }}?owner=${{ parameters.repo.owner }}&repo=${{parameters.model}}"
+        repoVisibility: public
+
+    - id: register
+      name: Register
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: "/catalog-info.yaml"
+
