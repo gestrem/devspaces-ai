@@ -73,6 +73,6 @@ commands:
       group:
         kind: run
         isDefault: true
-events:
-  postStart:
-    - config-continue-extension
+#events:
+#  postStart:
+#    - config-continue-extension
